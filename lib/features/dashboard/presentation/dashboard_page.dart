@@ -4,6 +4,7 @@ import 'package:autoledger/features/vehicles/presentation/add_vehicle_page.dart'
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:autoledger/features/vehicles/presentation/vehicle_detail_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -155,7 +156,15 @@ final NumberFormat kmFormatter = NumberFormat('#,###', 'tr_TR');
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Card(
                     child: ListTile(
-                      title: Text('${vehicle.brand} ${vehicle.model}'),
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => VehicleDetailPage(vehicle: vehicle),
+      ),
+    );
+  },
+  title: Text('${vehicle.brand} ${vehicle.model}'),
                       subtitle: Text(
   '${vehicle.year} • ${vehicle.fuelType} • ${kmFormatter.format(vehicle.currentKm).replaceAll(',', '.')} km',
 ),
