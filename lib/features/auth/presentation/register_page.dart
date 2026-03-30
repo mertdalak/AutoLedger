@@ -10,25 +10,44 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   bool isLoading = false;
 
   Future<void> register() async {
+    if (nameController.text.trim().isEmpty ||
+        emailController.text.trim().isEmpty ||
+        passwordController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Lütfen tüm alanları doldur.')),
+      );
+      return;
+    }
+
     try {
       setState(() => isLoading = true);
 
-      await Supabase.instance.client.auth.signUp(
+      final response = await Supabase.instance.client.auth.signUp(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+
+      final user = response.user;
+
+      if (user != null) {
+        await Supabase.instance.client.from('profiles').insert({
+          'id': user.id,
+          'full_name': nameController.text.trim(),
+        });
+      }
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Kayıt başarılı. E-posta doğrulama gerekebilir.'),
+          content: Text('Kayıt başarılı. Şimdi giriş yapabilirsin.'),
         ),
       );
 
@@ -50,6 +69,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void dispose() {
+    nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
@@ -78,6 +98,13 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
                 const SizedBox(height: 24),
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'İsim',
+                  ),
+                ),
+                const SizedBox(height: 12),
                 TextField(
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
