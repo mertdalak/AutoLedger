@@ -1,3 +1,4 @@
+import 'package:autoledger/core/data/car_brands_models.dart';
 import 'package:autoledger/core/formatters/thousands_separator_input_formatter.dart';
 import 'package:autoledger/features/vehicles/data/vehicle_service.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +12,6 @@ class AddVehiclePage extends StatefulWidget {
 }
 
 class _AddVehiclePageState extends State<AddVehiclePage> {
-  final brandController = TextEditingController();
-  final modelController = TextEditingController();
   final nicknameController = TextEditingController();
   final plateAliasController = TextEditingController();
   final currentKmController = TextEditingController();
@@ -23,6 +22,9 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
   String selectedFuelType = 'Benzin';
   int selectedYear = DateTime.now().year;
 
+  String? selectedBrand;
+  String? selectedModel;
+
   final fuelTypes = ['Benzin', 'Dizel', 'LPG', 'Elektrik', 'Hibrit'];
 
   late final List<int> years = List.generate(
@@ -30,9 +32,20 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
     (index) => DateTime.now().year - index,
   );
 
+  List<String> get brandList {
+    final brands = carBrandsModels.keys.toList();
+    brands.sort();
+    return brands;
+  }
+
+  List<String> get modelList {
+    if (selectedBrand == null) return [];
+    return carBrandsModels[selectedBrand] ?? [];
+  }
+
   Future<void> saveVehicle() async {
-    if (brandController.text.trim().isEmpty ||
-        modelController.text.trim().isEmpty ||
+    if (selectedBrand == null ||
+        selectedModel == null ||
         currentKmController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Lütfen zorunlu alanları doldur.')),
@@ -47,8 +60,8 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
           int.tryParse(currentKmController.text.replaceAll('.', '')) ?? 0;
 
       await vehicleService.addVehicle(
-        brand: brandController.text.trim(),
-        model: modelController.text.trim(),
+        brand: selectedBrand!,
+        model: selectedModel!,
         year: selectedYear,
         nickname: nicknameController.text.trim(),
         plateAlias: plateAliasController.text.trim(),
@@ -76,8 +89,6 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
 
   @override
   void dispose() {
-    brandController.dispose();
-    modelController.dispose();
     nicknameController.dispose();
     plateAliasController.dispose();
     currentKmController.dispose();
@@ -94,13 +105,42 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(
-              controller: brandController,
+            DropdownButtonFormField<String>(
+              initialValue: selectedBrand,
+              items: brandList
+                  .map(
+                    (brand) => DropdownMenuItem<String>(
+                      value: brand,
+                      child: Text(brand),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedBrand = value;
+                  selectedModel = null;
+                });
+              },
               decoration: const InputDecoration(labelText: 'Marka *'),
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: modelController,
+            DropdownButtonFormField<String>(
+              initialValue: selectedModel,
+              items: modelList
+                  .map(
+                    (model) => DropdownMenuItem<String>(
+                      value: model,
+                      child: Text(model),
+                    ),
+                  )
+                  .toList(),
+              onChanged: selectedBrand == null
+                  ? null
+                  : (value) {
+                      setState(() {
+                        selectedModel = value;
+                      });
+                    },
               decoration: const InputDecoration(labelText: 'Model *'),
             ),
             const SizedBox(height: 12),
@@ -136,7 +176,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
               initialValue: selectedFuelType,
               items: fuelTypes
                   .map(
-                    (fuel) => DropdownMenuItem(
+                    (fuel) => DropdownMenuItem<String>(
                       value: fuel,
                       child: Text(fuel),
                     ),
