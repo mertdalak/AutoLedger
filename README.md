@@ -1,17 +1,19 @@
-# autoledger
+# AutoLedger
 
-A new Flutter project.
+AutoLedger is a mobile app built with Flutter for tracking vehicle expenses.
 
-## Getting Started
+## Features
+- User authentication with Supabase
+- Vehicle management
+- Expense tracking
+- Maintenance reminders
+- Dashboard with cost insights
 
-This project is a starting point for a Flutter application.
+## Tech Stack
+- Flutter
+- Supabase
+- Riverpod
+- GoRouter
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Status
+Work in progress - built step by step for production release.
