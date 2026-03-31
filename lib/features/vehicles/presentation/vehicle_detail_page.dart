@@ -6,6 +6,7 @@ import 'package:autoledger/features/vehicles/domain/vehicle.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:autoledger/features/expenses/presentation/add_expense_page.dart';
+import 'package:autoledger/features/service_records/presentation/add_service_record_page.dart';
 
 class VehicleDetailPage extends StatefulWidget {
   final Vehicle vehicle;
@@ -101,6 +102,18 @@ class _VehicleDetailPageState extends State<VehicleDetailPage>
       await loadExpenses();
     }
   }
+  Future<void> goToAddServiceRecord() async {
+  final result = await Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => AddServiceRecordPage(vehicleId: widget.vehicle.id),
+    ),
+  );
+
+  if (result == true) {
+    await loadServiceRecords();
+  }
+}
 
   @override
   void dispose() {
@@ -125,12 +138,16 @@ class _VehicleDetailPageState extends State<VehicleDetailPage>
       appBar: AppBar(
   title: Text('${vehicle.brand} ${vehicle.model}'),
   actions: [
-    IconButton(
-      onPressed: _tabController.index == 0 ? goToAddExpense : null,
-      icon: const Icon(Icons.add),
-      tooltip: 'Gider ekle',
-    ),
-  ],
+  IconButton(
+    onPressed: _tabController.index == 0
+        ? goToAddExpense
+        : goToAddServiceRecord,
+    icon: const Icon(Icons.add),
+    tooltip: _tabController.index == 0
+        ? 'Gider ekle'
+        : 'Servis ekle',
+  ),
+],
   bottom: TabBar(
           controller: _tabController,
           tabs: const [
